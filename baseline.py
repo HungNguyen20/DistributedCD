@@ -30,7 +30,7 @@ def read_opts():
     parser.add_argument("--model", type=str, default="linear", choices=["linear", "nonlinear"])
     parser.add_argument("--dt", type=str, default="noniid", choices=["iid", "noniid"])
     parser.add_argument("--gt", type=str, default="ER", choices=["ER", "BP", "SF"])
-    parser.add_argument("--st", type=str, default="gauss", choices=["gauss, exp, gumbel, uniform, logistic, poisson"])
+    parser.add_argument("--st", type=str, default="gauss", choices=["gauss", 'exp', 'gumbel', 'uniform', 'logistic', 'poisson'])
     
     parser.add_argument("--K", type=int, default=10, help="Number of clients")
     parser.add_argument("--n", type=int, default=100, help="Data volume at each client")
@@ -97,14 +97,18 @@ def load_data(options):
         B_true = utils.simulate_parameter(groundtruth)
         
         if options['dt'] == "noniid":
-            Xs = []
+            X = []
+            noise_scale = np.random.randint(1, K+1, size=K)
             for k in range(K):
-                Xs.append(utils.simulate_linear_sem(B_true, n, sem_type, noise_scale=k+1))
-            Xs = np.vstack(tuple(Xs))
+                X.append(utils.simulate_linear_sem(B_true, n, sem_type, noise_scale=noise_scale[k]))
+            X = np.vstack(tuple(X))
         else:
-            Xs = utils.simulate_linear_sem(B_true, K * n, sem_type)
+            X = utils.simulate_linear_sem(B_true, K * n, sem_type)
         
-        os.mkdir(f"./data/{folder}")
+        try:
+            os.mkdir(f"./data/{folder}")
+        except:
+            pass
         np.savetxt(f"./data/{folder}/data.csv", X, fmt='%.6f', delimiter=",")
         np.savetxt(f"./data/{folder}/graph.csv", groundtruth, fmt='%d', delimiter=",")
     
