@@ -1,5 +1,9 @@
 import argparse
 import os
+import torch
+from pathlib import Path
+import numpy as np
+import time
 
 # Imports for notears-admm
 from baselines.notears_admm.notears_admm import utils
@@ -9,13 +13,14 @@ from baselines.notears_admm.notears_admm.linear_admm import notears_linear_admm
 # Imports for FedDAG
 from baselines.FedDAG.models import GS_FedDAG
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-from tensorflow.python.util import deprecation
+from tensorflow.python.util import deprecation # type: ignore
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
-import torch
-from pathlib import Path
-import numpy as np
-import time
+# Imports for FedCDH
+from causallearn.search.ConstraintBased.CDNOD import cdnod
+from causallearn.utils.cit import kci
+from causallearn.utils.data_utils import get_cpdag_from_cdnod, get_dag_from_pdag
+
 
 def read_opts():
     parser = argparse.ArgumentParser()
@@ -41,11 +46,37 @@ def read_opts():
     return options
 
 
-def notears_admm_main(Xs, max_iter):
+def notears_admm_main(Xs, options):
     # Run NOTEARS-MLP-ADMM
-    B_est = notears_linear_admm(Xs, lambda1=0.01, verbose=False, max_iter=max_iter)
+    B_est = notears_linear_admm(Xs, lambda1=0.01, verbose=False, max_iter=options['num_rounds'])
     B_processed = postprocess(B_est, threshold=0.3)
     return B_processed
+
+
+def feddag_main(Xs, options):
+    model = GS_FedDAG(d=options['d'], 
+                    num_client=options['K'],
+                    use_gpu=False, 
+                    seed=options['run_seed'],
+                    max_iter=options['num_rounds'], 
+                    num_shared_client=options['K'])
+        
+    model.learn([Xs[i] for i in range(Xs.shape[0])])
+    return model.causal_matrix
+
+
+def fedcdh_main(Xs, options):
+    c_indx = np.asarray(list(range(options["K"])))
+    c_indx = np.repeat(c_indx, options['n']) 
+    c_indx = np.reshape(c_indx, (options['n'] * options['K'],1)) 
+    
+    cg = cdnod(Xs, c_indx, options['K'], 0.05, kci, True, 0, -1)
+
+    est_graph = np.zeros((options['d'], options['d']))
+    est_graph = cg.G.graph[0:options['d'], 0:options['d']]
+    est_cpdag = get_cpdag_from_cdnod(est_graph) # est_graph[i,j]=-1 & est_graph[j,i]=1  ->  est_graph_cpdag[i,j]=1
+    est_dag_from_pdag = get_dag_from_pdag(est_cpdag) # return a DAG from a PDAG in causaldag.
+    return est_dag_from_pdag
 
 
 def load_data(options):
@@ -88,26 +119,18 @@ if __name__ == "__main__":
     if options['baseline'] == "notears-admm":
         st = time.time()
         utils.set_random_seed(options['run_seed'])
-        B_processed = notears_admm_main(Xs, max_iter=options['num_rounds'])
+        B_processed = notears_admm_main(Xs, options)
         
     elif options['baseline'] == "FedDAG":
         st = time.time()
-        model = GS_FedDAG(d=options['d'], 
-                          num_client=options['K'],
-                          use_gpu=False, 
-                          seed=options['run_seed'],
-                          max_iter=options['num_rounds'], 
-                          num_shared_client=options['K'])
-        
-        model.learn([Xs[i] for i in range(Xs.shape[0])])
-        B_processed = model.causal_matrix
+        B_processed = feddag_main(Xs, options)
     
     elif options['baseline'] == "FedCDH":
         st = time.time()
-        pass
-    
+        utils.set_random_seed(options['run_seed'])
+        B_processed = fedcdh_main(Xs, options)
+        
     runtime = time.time() - st
-    
     
     # Processed output
     etrue, espur, emiss, efals = utils.count_accuracy(B_processed, groundtruth)
