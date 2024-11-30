@@ -4,7 +4,7 @@ https://github.com/ignavierng/golem/blob/main/src/utils/train.py
 """
 import numpy as np
 
-from notears_admm.utils import is_dag
+from baselines.notears_admm.notears_admm.utils import is_dag
 
 
 def threshold_till_dag(B):

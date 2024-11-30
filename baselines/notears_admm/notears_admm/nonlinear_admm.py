@@ -2,9 +2,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from notears_admm.lbfgsb_scipy import LBFGSBScipy
-from notears_admm.locally_connected import LocallyConnected
-from notears_admm.trace_expm import trace_expm
+from baselines.notears_admm.notears_admm.lbfgsb_scipy import LBFGSBScipy
+from baselines.notears_admm.notears_admm.locally_connected import LocallyConnected
+from baselines.notears_admm.notears_admm.trace_expm import trace_expm
 
 
 class NonlinearModel(nn.Module):
