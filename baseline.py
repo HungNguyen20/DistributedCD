@@ -17,9 +17,9 @@ from tensorflow.python.util import deprecation # type: ignore
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 # Imports for FedCDH
-from causallearn.search.ConstraintBased.CDNOD import cdnod
-from causallearn.utils.cit import kci
-from causallearn.utils.data_utils import get_cpdag_from_cdnod, get_dag_from_pdag
+# from causallearn.search.ConstraintBased.CDNOD import cdnod
+# from causallearn.utils.cit import kci
+# from causallearn.utils.data_utils import get_cpdag_from_cdnod, get_dag_from_pdag
 
 
 def read_opts():
@@ -28,13 +28,15 @@ def read_opts():
     parser.add_argument("--output", type=str, default="res.csv")
     
     parser.add_argument("--model", type=str, default="linear", choices=["linear", "nonlinear"])
+    parser.add_argument("--dt", type=str, default="noniid", choices=["iid", "noniid"])
     parser.add_argument("--gt", type=str, default="ER", choices=["ER", "BP", "SF"])
     parser.add_argument("--st", type=str, default="gauss", choices=["gauss, exp, gumbel, uniform, logistic, poisson"])
     
-    parser.add_argument("--K", type=int, default=5, help="Number of clients")
+    parser.add_argument("--K", type=int, default=10, help="Number of clients")
     parser.add_argument("--n", type=int, default=100, help="Data volume at each client")
     parser.add_argument("--d", type=int, default=10, help="Number of variables")
     parser.add_argument("--s", type=int, default=10, help="Number of edges")
+    parser.add_argument("--dz", type=int, default=2, help="Number of missing variables")
     
     parser.add_argument("--num_rounds", type=int, default=100, help="Number of maximum comm rounds - global problem solver")
     parser.add_argument("--repeat", type=int, default=1, help="Number of independent runs")
@@ -65,18 +67,18 @@ def feddag_main(Xs, options):
     return model.causal_matrix
 
 
-def fedcdh_main(Xs, options):
-    c_indx = np.asarray(list(range(options["K"])))
-    c_indx = np.repeat(c_indx, options['n']) 
-    c_indx = np.reshape(c_indx, (options['n'] * options['K'],1)) 
+# def fedcdh_main(Xs, options):
+#     c_indx = np.asarray(list(range(options["K"])))
+#     c_indx = np.repeat(c_indx, options['n']) 
+#     c_indx = np.reshape(c_indx, (options['n'] * options['K'],1)) 
     
-    cg = cdnod(Xs, c_indx, options['K'], 0.05, kci, True, 0, -1)
+#     cg = cdnod(Xs, c_indx, options['K'], 0.05, kci, True, 0, -1)
 
-    est_graph = np.zeros((options['d'], options['d']))
-    est_graph = cg.G.graph[0:options['d'], 0:options['d']]
-    est_cpdag = get_cpdag_from_cdnod(est_graph) # est_graph[i,j]=-1 & est_graph[j,i]=1  ->  est_graph_cpdag[i,j]=1
-    est_dag_from_pdag = get_dag_from_pdag(est_cpdag) # return a DAG from a PDAG in causaldag.
-    return est_dag_from_pdag
+#     est_graph = np.zeros((options['d'], options['d']))
+#     est_graph = cg.G.graph[0:options['d'], 0:options['d']]
+#     est_cpdag = get_cpdag_from_cdnod(est_graph) # est_graph[i,j]=-1 & est_graph[j,i]=1  ->  est_graph_cpdag[i,j]=1
+#     est_dag_from_pdag = get_dag_from_pdag(est_cpdag) # return a DAG from a PDAG in causaldag.
+#     return est_dag_from_pdag
 
 
 def load_data(options):
@@ -86,14 +88,22 @@ def load_data(options):
     
     if not Path(f"./res/{options['output']}").exists():
         f = open(f"./res/{options['output']}", "w")
-        f.write("baseline,etrue,espur,emiss,efals,runtime\n")
+        f.write("d,e,dz,model,dt,gt,st,K,n,seed,baseline,etrue,espur,emiss,efals,runtime\n")
         f.close()
     
     if not Path(f"./data/{folder}/data.csv").exists():
         utils.set_random_seed(seed)
         groundtruth = utils.simulate_dag(d, s, graph_type)
         B_true = utils.simulate_parameter(groundtruth)
-        X = utils.simulate_linear_sem(B_true, K * n, sem_type)
+        
+        if options['dt'] == "noniid":
+            Xs = []
+            for k in range(K):
+                Xs.append(utils.simulate_linear_sem(B_true, n, sem_type, noise_scale=k+1))
+            Xs = np.vstack(tuple(Xs))
+        else:
+            Xs = utils.simulate_linear_sem(B_true, K * n, sem_type)
+        
         os.mkdir(f"./data/{folder}")
         np.savetxt(f"./data/{folder}/data.csv", X, fmt='%.6f', delimiter=",")
         np.savetxt(f"./data/{folder}/graph.csv", groundtruth, fmt='%d', delimiter=",")
@@ -104,7 +114,16 @@ def load_data(options):
         
     Xs = X.reshape(K, n, d)
     return Xs, groundtruth
-        
+
+
+def augment_data(Xs: np.ndarray, m=1):
+    aug_X = Xs.copy()
+    d = aug_X.shape[0]
+    for k in range(d):
+        for i in range(m):
+            aug_X[k][:,(k+i)%d] *= 0
+    return aug_X
+
     
 if __name__ == "__main__":
     options = read_opts()
@@ -114,29 +133,36 @@ if __name__ == "__main__":
 
     # Load data
     Xs, groundtruth = load_data(options)
+    Xs = augment_data(Xs, options['dz'])
     
     # Run algorithms
-    if options['baseline'] == "notears-admm":
-        st = time.time()
-        utils.set_random_seed(options['run_seed'])
-        B_processed = notears_admm_main(Xs, options)
+    for r in range(options['repeat']):
+        utils.set_random_seed(r**2 + 2*r + 2)
+        print(f"Run {r+1}/{options['repeat']}... ", end="")
         
-    elif options['baseline'] == "FedDAG":
-        st = time.time()
-        B_processed = feddag_main(Xs, options)
-    
-    elif options['baseline'] == "FedCDH":
-        st = time.time()
-        utils.set_random_seed(options['run_seed'])
-        B_processed = fedcdh_main(Xs, options)
+        if options['baseline'] == "notears-admm":
+            st = time.time()
+            utils.set_random_seed(options['run_seed'])
+            B_processed = notears_admm_main(Xs, options)
+            
+        elif options['baseline'] == "FedDAG":
+            st = time.time()
+            B_processed = feddag_main(Xs, options)
         
-    runtime = time.time() - st
+        # elif options['baseline'] == "FedCDH":
+        #     st = time.time()
+        #     utils.set_random_seed(options['run_seed'])
+        #     B_processed = fedcdh_main(Xo, options)
+            
+        runtime = time.time() - st
+        
+        # Processed output
+        etrue, espur, emiss, efals = utils.count_accuracy(B_processed, groundtruth)
+        
+        # Write results
+        print("Writting results...", end="")
+        f = open(f"./res/{options['output']}", "a")
+        f.write(f"{options['d']},{options['d']},{options['dz']},{options['model']},{options['dt']},{options['gt']},{options['st']},{options['K']},{options['n']},{options['data_seed']},{options['baseline']},{etrue},{espur},{emiss},{efals},{runtime}\n")
+        f.close()
+        print("Done!")
     
-    # Processed output
-    etrue, espur, emiss, efals = utils.count_accuracy(B_processed, groundtruth)
-    print(etrue, espur, emiss, efals)
-    
-    # Write results
-    f = open(f"./res/{options['output']}", "a")
-    f.write(f"{options['baseline']},{etrue},{espur},{emiss},{efals},{runtime}\n")
-    f.close()
