@@ -1,0 +1,90 @@
+Started running experiments.
+Generating data, maybe slow! You can pre-genrate the data.
+2022-09-27 11:23:06,233 Finished synthetic dataset
+2022-09-27 11:23:06,233 [INFO]  Finished synthetic dataset
+Begin running the mothod.....
+<----------------------------------->
+2022-09-27 11:23:09,347 This is the 1 iteration. h_loss is inf, alpha is 0.0, rho is 1.0
+2022-09-27 11:23:09,347 [INFO]  This is the 1 iteration. h_loss is inf, alpha is 0.0, rho is 1.0
+<----------------------------------->
+2022-09-27 11:23:40,376 This is the 2 iteration. h_loss is 0.27646446228027344, alpha is 0.27646446228027344, rho is 1.0
+2022-09-27 11:23:40,376 [INFO]  This is the 2 iteration. h_loss is 0.27646446228027344, alpha is 0.27646446228027344, rho is 1.0
+<----------------------------------->
+2022-09-27 11:25:39,055 This is the 3 iteration. h_loss is 0.021170616149902344, alpha is 21.447080612182617, rho is 1000.0
+2022-09-27 11:25:39,055 [INFO]  This is the 3 iteration. h_loss is 0.021170616149902344, alpha is 21.447080612182617, rho is 1000.0
+<----------------------------------->
+2022-09-27 11:26:38,439 This is the 4 iteration. h_loss is 0.0048656463623046875, alpha is 70.10354423522949, rho is 10000.0
+2022-09-27 11:26:38,439 [INFO]  This is the 4 iteration. h_loss is 0.0048656463623046875, alpha is 70.10354423522949, rho is 10000.0
+<----------------------------------->
+2022-09-27 11:27:37,944 This is the 5 iteration. h_loss is 0.00091552734375, alpha is 161.6562786102295, rho is 100000.0
+2022-09-27 11:27:37,944 [INFO]  This is the 5 iteration. h_loss is 0.00091552734375, alpha is 161.6562786102295, rho is 100000.0
+<----------------------------------->
+2022-09-27 11:28:37,342 This is the 6 iteration. h_loss is 0.00018310546875, alpha is 344.7617473602295, rho is 1000000.0
+2022-09-27 11:28:37,342 [INFO]  This is the 6 iteration. h_loss is 0.00018310546875, alpha is 344.7617473602295, rho is 1000000.0
+<----------------------------------->
+2022-09-27 11:29:36,727 This is the 7 iteration. h_loss is 4.00543212890625e-05, alpha is 745.3049602508545, rho is 10000000.0
+2022-09-27 11:29:36,727 [INFO]  This is the 7 iteration. h_loss is 4.00543212890625e-05, alpha is 745.3049602508545, rho is 10000000.0
+<----------------------------------->
+2022-09-27 11:30:36,096 This is the 8 iteration. h_loss is 7.62939453125e-06, alpha is 1508.2444133758545, rho is 100000000.0
+2022-09-27 11:30:36,096 [INFO]  This is the 8 iteration. h_loss is 7.62939453125e-06, alpha is 1508.2444133758545, rho is 100000000.0
+<----------------------------------->
+2022-09-27 11:31:35,614 This is the 9 iteration. h_loss is 1.9073486328125e-06, alpha is 3415.5930461883545, rho is 1000000000.0
+2022-09-27 11:31:35,614 [INFO]  This is the 9 iteration. h_loss is 1.9073486328125e-06, alpha is 3415.5930461883545, rho is 1000000000.0
+2022-09-27 11:32:35,071 Early stopping at 9-th iteration
+2022-09-27 11:32:35,071 [INFO]  Early stopping at 9-th iteration
+2022-09-27 11:32:35,127 run result:{'fdr': 0.125, 'tpr': 0.8235, 'fpr': 0.0714, 'shd': 4, 'nnz': 16, 'precision': 0.875, 'recall': 0.8235, 'F1': 0.8485, 'gscore': 0.7059}
+2022-09-27 11:32:35,127 [INFO]  run result:{'fdr': 0.125, 'tpr': 0.8235, 'fpr': 0.0714, 'shd': 4, 'nnz': 16, 'precision': 0.875, 'recall': 0.8235, 'F1': 0.8485, 'gscore': 0.7059}
+Generating data, maybe slow! You can pre-genrate the data.
+2022-09-27 11:34:02,101 Finished synthetic dataset
+2022-09-27 11:34:02,101 [INFO]  Finished synthetic dataset
+Begin running the mothod.....
+<----------------------------------->
+2022-09-27 11:34:39,013 This is the 1 iteration. h_loss is inf, alpha is 0.0, rho is 0.006
+2022-09-27 11:34:39,013 [INFO]  This is the 1 iteration. h_loss is inf, alpha is 0.0, rho is 0.006
+<----------------------------------->
+2022-09-27 11:36:14,487 This is the 2 iteration. h_loss is 1.204463005065918, alpha is 0.007226778030395508, rho is 0.006
+2022-09-27 11:36:14,487 [INFO]  This is the 2 iteration. h_loss is 1.204463005065918, alpha is 0.007226778030395508, rho is 0.006
+<----------------------------------->
+2022-09-27 11:39:00,081 This is the 3 iteration. h_loss is 0.2752418518066406, alpha is 0.023741289138793947, rho is 0.06
+2022-09-27 11:39:00,081 [INFO]  This is the 3 iteration. h_loss is 0.2752418518066406, alpha is 0.023741289138793947, rho is 0.06
+<----------------------------------->
+2022-09-27 11:40:24,069 This is the 4 iteration. h_loss is 0.0, alpha is 0.023741289138793947, rho is 0.06
+2022-09-27 11:40:24,069 [INFO]  This is the 4 iteration. h_loss is 0.0, alpha is 0.023741289138793947, rho is 0.06
+2022-09-27 11:43:10,246 run result:{'fdr': 0.0, 'tpr': 1.0, 'fpr': 0.0, 'shd': 0, 'nnz': 17, 'precision': 1.0, 'recall': 1.0, 'F1': 1.0, 'gscore': 1.0}
+2022-09-27 11:43:10,246 [INFO]  run result:{'fdr': 0.0, 'tpr': 1.0, 'fpr': 0.0, 'shd': 0, 'nnz': 17, 'precision': 1.0, 'recall': 1.0, 'F1': 1.0, 'gscore': 1.0}
+Generating data, maybe slow! You can pre-genrate the data.
+2022-09-27 11:43:12,830 Finished synthetic dataset
+2022-09-27 11:43:12,830 [INFO]  Finished synthetic dataset
+2022-09-27 11:43:12,831 Finished synthetic dataset
+2022-09-27 11:43:12,831 [INFO]  Finished synthetic dataset
+2022-09-27 11:43:13,200 Finished synthetic dataset
+2022-09-27 11:43:13,200 [INFO]  Finished synthetic dataset
+2022-09-27 11:43:13,201 Finished synthetic dataset
+2022-09-27 11:43:13,201 [INFO]  Finished synthetic dataset
+2022-09-27 11:43:13,409 Finished synthetic dataset
+2022-09-27 11:43:13,409 [INFO]  Finished synthetic dataset
+2022-09-27 11:43:13,883 Finished synthetic dataset
+2022-09-27 11:43:13,883 [INFO]  Finished synthetic dataset
+2022-09-27 11:43:13,884 Finished synthetic dataset
+2022-09-27 11:43:13,884 [INFO]  Finished synthetic dataset
+2022-09-27 11:43:14,386 Finished synthetic dataset
+2022-09-27 11:43:14,386 [INFO]  Finished synthetic dataset
+2022-09-27 11:43:14,387 Finished synthetic dataset
+2022-09-27 11:43:14,387 [INFO]  Finished synthetic dataset
+2022-09-27 11:43:14,388 Finished synthetic dataset
+2022-09-27 11:43:14,388 [INFO]  Finished synthetic dataset
+Begin running the mothod.....
+<----------------------------------->
+2022-09-27 11:43:49,742 This is the 1 iteration. h_loss is inf, alpha is 0.0, rho is 0.006
+2022-09-27 11:43:49,742 [INFO]  This is the 1 iteration. h_loss is inf, alpha is 0.0, rho is 0.006
+<----------------------------------->
+2022-09-27 11:45:25,952 This is the 2 iteration. h_loss is 4.21091365814209, alpha is 0.02526548194885254, rho is 0.006
+2022-09-27 11:45:25,952 [INFO]  This is the 2 iteration. h_loss is 4.21091365814209, alpha is 0.02526548194885254, rho is 0.006
+<----------------------------------->
+2022-09-27 11:49:36,558 This is the 3 iteration. h_loss is 1.0452690124511719, alpha is 0.6524268894195557, rho is 0.6
+2022-09-27 11:49:36,558 [INFO]  This is the 3 iteration. h_loss is 1.0452690124511719, alpha is 0.6524268894195557, rho is 0.6
+<----------------------------------->
+2022-09-27 11:51:01,130 This is the 4 iteration. h_loss is 0.0, alpha is 0.6524268894195557, rho is 0.6
+2022-09-27 11:51:01,130 [INFO]  This is the 4 iteration. h_loss is 0.0, alpha is 0.6524268894195557, rho is 0.6
+2022-09-27 11:52:23,243 run result:{'fdr': 0.0556, 'tpr': 1.0, 'fpr': 0.0357, 'shd': 1, 'nnz': 18, 'precision': 0.9444, 'recall': 1.0, 'F1': 0.9714, 'gscore': 0.9412}
+2022-09-27 11:52:23,243 [INFO]  run result:{'fdr': 0.0556, 'tpr': 1.0, 'fpr': 0.0357, 'shd': 1, 'nnz': 18, 'precision': 0.9444, 'recall': 1.0, 'F1': 0.9714, 'gscore': 0.9412}
