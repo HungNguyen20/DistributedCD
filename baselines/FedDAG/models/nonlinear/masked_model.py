@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import tensorflow as tf
 
-from helpers.tf_utils import gumbel_sigmoid
+from baselines.FedDAG.helpers.tf_utils import gumbel_sigmoid
 
 class MaskedModel(ABC):
 

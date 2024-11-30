@@ -37,7 +37,7 @@ class NoTears(object):
                     + self.alpha * self.h + 0.5 * self.rho * self.h * self.h
 
         self.train_op = tf.compat.v1.train.AdamOptimizer(learning_rate=self.lr).minimize(self.loss)
-        self._logger.debug('Finished building Tensorflow graph')
+        # self._logger.debug('Finished building Tensorflow graph')
 
     def _preprocess_graph(self, W):
         # Mask the diagonal entries of graph

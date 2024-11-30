@@ -15,7 +15,7 @@
 
 import numpy as np
 
-from .analyze_utils import convert_logits_to_sigmoid
+from baselines.FedDAG.helpers.analyze_utils import convert_logits_to_sigmoid
 
 def callback_after_training(W_logits,temperature,
                             graph_thres):

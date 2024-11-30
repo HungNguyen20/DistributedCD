@@ -1,5 +1,5 @@
 from . import DAG
-from .simulation import NonIID_Simulation, Multi_IID_Simulation
+from baselines.FedDAG.datasets.simulation import NonIID_Simulation, Multi_IID_Simulation
 
 def data_gen(graph_type,
              node,

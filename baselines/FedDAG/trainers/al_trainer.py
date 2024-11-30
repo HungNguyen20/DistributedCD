@@ -1,6 +1,6 @@
 import logging
 import numpy as np
-from helpers.analyze_utils import compute_acyclicity, convert_logits_to_sigmoid
+from baselines.FedDAG.helpers.analyze_utils import compute_acyclicity, convert_logits_to_sigmoid
 
 class ALTrainer(object):
     """
@@ -29,7 +29,7 @@ class ALTrainer(object):
 
         for i in range(1, max_iter + 1):
             # print the mid data
-            print('<----------------------------------->')
+            # print('<----------------------------------->')
             if self.logger:
                 self.logger.info('This is the {} iteration. h_loss is {}, alpha is {}, rho is {}'.format(i, h_new, alpha, rho))
             while rho < self.rho_thres:

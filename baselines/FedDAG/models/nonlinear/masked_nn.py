@@ -1,5 +1,5 @@
 from tensorflow.keras.layers import Dense, LeakyReLU
-from .masked_model import MaskedModel
+from baselines.FedDAG.models.nonlinear.masked_model import MaskedModel
 import tensorflow as tf
 import numpy as np
 

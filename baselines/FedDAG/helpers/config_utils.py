@@ -106,6 +106,7 @@ def setup_parser(parser:ArgumentParser):
     parser.add_argument('--fed_type',
                         type=str,
                         choices=['GS', 'AS', 'AS_linear'],
+                        default='GS',
                         required=True,
                         help='Different sharing methods.')
     
