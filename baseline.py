@@ -41,25 +41,25 @@ def read_opts():
     parser.add_argument("--num_rounds", type=int, default=100, help="Number of maximum comm rounds - global problem solver")
     parser.add_argument("--repeat", type=int, default=1, help="Number of independent runs")
     parser.add_argument("--data_seed", type=int, default=1, help="Random seed for data")
-    parser.add_argument("--run_seed", type=int, default=1, help="Random seed for experiment")
     parser.add_argument("--baseline", type=str, choices=["CDNOD", "notears-admm", "FedCDH", "FedDAG"], default="notears-admm")
     
     options = vars(parser.parse_args())
     return options
 
 
-def notears_admm_main(Xs, options):
+def notears_admm_main(Xs, options, seed):
     # Run NOTEARS-MLP-ADMM
+    utils.set_random_seed(seed)
     B_est = notears_linear_admm(Xs, lambda1=0.01, verbose=False, max_iter=options['num_rounds'])
     B_processed = postprocess(B_est, threshold=0.3)
     return B_processed
 
 
-def feddag_main(Xs, options):
+def feddag_main(Xs, options, seed):
     model = GS_FedDAG(d=options['d'], 
                     num_client=options['K'],
                     use_gpu=False, 
-                    seed=options['run_seed'],
+                    seed=seed,
                     max_iter=options['num_rounds'], 
                     num_shared_client=options['K'])
         
@@ -83,8 +83,8 @@ def feddag_main(Xs, options):
 
 def load_data(options):
     K, n, d, s = options['K'], options['n'], options['d'], options['s']
-    graph_type, sem_type, seed = options['gt'], options['st'], options['data_seed']
-    folder = f"K{K}_{n}_d{d}_s{s}_gt{graph_type}_st{sem_type}_seed{seed}"
+    dist_type, graph_type, sem_type, seed = options['dt'], options['gt'], options['st'], options['data_seed']
+    folder = f"K{K}_{n}_d{d}_s{s}_dt{dist_type}_gt{graph_type}_st{sem_type}_seed{seed}"
     
     if not Path(f"./res/{options['output']}").exists():
         f = open(f"./res/{options['output']}", "w")
@@ -95,20 +95,22 @@ def load_data(options):
         utils.set_random_seed(seed)
         groundtruth = utils.simulate_dag(d, s, graph_type)
         B_true = utils.simulate_parameter(groundtruth)
+        noise_scale = np.random.uniform(0,5, size=(K,d))
         
-        if options['dt'] == "noniid":
+        if dist_type == "noniid":
             X = []
-            noise_scale = np.random.randint(1, K+1, size=K)
             for k in range(K):
                 X.append(utils.simulate_linear_sem(B_true, n, sem_type, noise_scale=noise_scale[k]))
             X = np.vstack(tuple(X))
+            
         else:
-            X = utils.simulate_linear_sem(B_true, K * n, sem_type)
+            X = utils.simulate_linear_sem(B_true, K * n, sem_type, noise_scale[0])
         
         try:
             os.mkdir(f"./data/{folder}")
         except:
             pass
+        
         np.savetxt(f"./data/{folder}/data.csv", X, fmt='%.6f', delimiter=",")
         np.savetxt(f"./data/{folder}/graph.csv", groundtruth, fmt='%d', delimiter=",")
     
@@ -141,27 +143,26 @@ if __name__ == "__main__":
     
     # Run algorithms
     for r in range(options['repeat']):
-        utils.set_random_seed(r**2 + 2*r + 2)
         print(f"Run {r+1}/{options['repeat']}... ", end="")
         
         if options['baseline'] == "notears-admm":
             st = time.time()
-            utils.set_random_seed(options['run_seed'])
-            B_processed = notears_admm_main(Xs, options)
+            B_est = notears_admm_main(Xs, options, seed = r**2 + 2*r + 2)
+            B_processed = postprocess(B_est, threshold=0.3)
+            B_processed[B_processed != 0] = 1
             
         elif options['baseline'] == "FedDAG":
             st = time.time()
-            B_processed = feddag_main(Xs, options)
+            B_processed = feddag_main(Xs, options, seed = r**2 + 2*r + 2)
         
         # elif options['baseline'] == "FedCDH":
         #     st = time.time()
-        #     utils.set_random_seed(options['run_seed'])
         #     B_processed = fedcdh_main(Xo, options)
             
         runtime = time.time() - st
         
         # Processed output
-        etrue, espur, emiss, efals = utils.count_accuracy(B_processed, groundtruth)
+        etrue, espur, emiss, efals = utils.count_accuracy(groundtruth, B_processed)
         
         # Write results
         print("Writting results...", end="")

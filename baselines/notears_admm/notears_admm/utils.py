@@ -143,6 +143,10 @@ def simulate_linear_sem(W, n, sem_type, noise_scale=None):
     for j in ordered_vertices:
         parents = G.neighbors(j, mode=ig.IN)
         X[:, j] = _simulate_single_equation(X[:, parents], W[parents, j], scale_vec[j])
+        # If X[:,j] is a source variable, it should not follow common zero-mean noise.
+        if len(parents) == 0:
+            b = np.random.randint(20, 101)/20 # b in [1, 5]
+            X[:, j] += np.random.uniform(-b,b,(n,))
     return X
 
 
@@ -201,6 +205,10 @@ def simulate_nonlinear_sem(B, n, sem_type, noise_scale=None):
     for j in ordered_vertices:
         parents = G.neighbors(j, mode=ig.IN)
         X[:, j] = _simulate_single_equation(X[:, parents], scale_vec[j])
+        # If X[:,j] is a source variable, it should not follow common zero-mean noise.
+        if len(parents) == 0:
+            b = np.random.randint(1, 101)/20 # b in [0.05, 5]
+            X[:, j] += np.random.uniform(-b,b,(n,))
     return X
 
 
