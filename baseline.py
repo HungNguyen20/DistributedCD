@@ -17,9 +17,9 @@ from tensorflow.python.util import deprecation # type: ignore
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 # Imports for FedCDH
-# from causallearn.search.ConstraintBased.CDNOD import cdnod
-# from causallearn.utils.cit import kci
-# from causallearn.utils.data_utils import get_cpdag_from_cdnod, get_dag_from_pdag
+from causallearn.search.ConstraintBased.CDNOD import cdnod
+from causallearn.utils.cit import kci
+from causallearn.utils.data_utils import get_cpdag_from_cdnod, get_dag_from_pdag
 
 
 def read_opts():
@@ -29,7 +29,7 @@ def read_opts():
     
     parser.add_argument("--model", type=str, default="linear", choices=["linear", "nonlinear"])
     parser.add_argument("--dt", type=str, default="noniid", choices=["iid", "noniid"])
-    parser.add_argument("--gt", type=str, default="ER", choices=["ER", "BP", "SF"])
+    parser.add_argument("--gt", type=str, default="ER", choices=["ER", "BP", "SF"], help="Type of graph: Erdos-Renyi, Bipartile, Scale-free")
     parser.add_argument("--st", type=str, default="gauss", choices=["gauss", 'exp', 'gumbel', 'uniform', 'logistic', 'poisson'])
     
     parser.add_argument("--K", type=int, default=10, help="Number of clients")
@@ -67,18 +67,18 @@ def feddag_main(Xs, options, seed):
     return model.causal_matrix
 
 
-# def fedcdh_main(Xs, options):
-#     c_indx = np.asarray(list(range(options["K"])))
-#     c_indx = np.repeat(c_indx, options['n']) 
-#     c_indx = np.reshape(c_indx, (options['n'] * options['K'],1)) 
+def fedcdh_main(Xs, options):
+    c_indx = np.asarray(list(range(options["K"])))
+    c_indx = np.repeat(c_indx, options['n']) 
+    c_indx = np.reshape(c_indx, (options['n'] * options['K'],1)) 
     
-#     cg = cdnod(Xs, c_indx, options['K'], 0.05, kci, True, 0, -1)
+    cg = cdnod(Xs, c_indx, options['K'], 0.05, kci, True, 0, -1)
 
-#     est_graph = np.zeros((options['d'], options['d']))
-#     est_graph = cg.G.graph[0:options['d'], 0:options['d']]
-#     est_cpdag = get_cpdag_from_cdnod(est_graph) # est_graph[i,j]=-1 & est_graph[j,i]=1  ->  est_graph_cpdag[i,j]=1
-#     est_dag_from_pdag = get_dag_from_pdag(est_cpdag) # return a DAG from a PDAG in causaldag.
-#     return est_dag_from_pdag
+    est_graph = np.zeros((options['d'], options['d']))
+    est_graph = cg.G.graph[0:options['d'], 0:options['d']]
+    est_cpdag = get_cpdag_from_cdnod(est_graph) # est_graph[i,j]=-1 & est_graph[j,i]=1  ->  est_graph_cpdag[i,j]=1
+    est_dag_from_pdag = get_dag_from_pdag(est_cpdag) # return a DAG from a PDAG in causaldag.
+    return est_dag_from_pdag
 
 
 def load_data(options):
@@ -155,9 +155,9 @@ if __name__ == "__main__":
             st = time.time()
             B_processed = feddag_main(Xs, options, seed = r**2 + 2*r + 2)
         
-        # elif options['baseline'] == "FedCDH":
-        #     st = time.time()
-        #     B_processed = fedcdh_main(Xo, options)
+        elif options['baseline'] == "FedCDH":
+            st = time.time()
+            B_processed = fedcdh_main(Xs, options)
             
         runtime = time.time() - st
         
